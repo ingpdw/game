@@ -1,0 +1,26 @@
+
+g.canvas = document.getElementById('canvas');
+
+g.context = g.canvas.getContext('2d');
+
+g.update = function(){
+	draw();
+}
+
+g.draw = function(){
+	var tmp = document.createElement('canvas'),
+	    tmpCtx = tmp.getContext('2d');
+
+	tmp.width = g.canvas.width;
+	tmp.height = g.cavnas.height;
+
+	tmp.drawRect(0, 0, 10, 10);
+	
+	g.canvas.drawImage(tmp, 0, 0);	
+
+//	remove expensive drawing
+//	var iData = tmpCtx.getImageData(0, 0, tmp.width, tmp.height);
+//	g.context.putImageData(iData, 0, 0);
+}
+
+setInterval(update, 16);
