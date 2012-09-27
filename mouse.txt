@@ -1,0 +1,11 @@
+Object
+layerX, layerY
+//IE 
+offsetX, offsetY
+
+
+page
+pageX, pageY
+//IE
+event.clientX + document.body.scrollLeft
+event.clientY+document.body.scrollTop
