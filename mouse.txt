@@ -8,4 +8,22 @@ page
 pageX, pageY
 //IE
 event.clientX + document.body.scrollLeft
-event.clientY+document.body.scrollTop
+event.clientY + document.body.scrollTop
+
+
+//point hitTest
+Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2) = 0
+
+//circle hitTest(중점거리)
+Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2) <= Math.pow(r1 + r2)
+
+hitTest = function(x, y){
+ for(var i = 0, len = circle.length, i < len; i++){
+   var dx = Math.pow(circle[i].x - x),
+       dy = Math.pow(circle[i].y - y);
+   if(dx + dy <  Math.pow(circle[i].radius, 2)){
+     return true;
+   }	
+ }
+ return false;
+}

@@ -24,3 +24,40 @@ g.draw = function(){
 }
 
 setInterval(update, 16);
+
+vs
+
+var loop;
+
+g.draw = function(){  
+  clear();  
+  move();  
+  run();  
+  loop = setTimeout(g.draw, 1000 / 50);  
+}  
+g.draw();  
+
+
+g.player = function(){
+  this.width = 70;
+  this.height = 40;
+  this.x = 0;
+  this.y = canvas.height - this.height;
+  this.frames = 1;
+  this.activeFrame = 0;
+  this.delay = 0;
+};
+g.player.prototype = {
+  draw: function(){
+    ctx.drawImage(img, 0, this.activeFrame * this.height, this.width, this.height, this.x, this.y, this.width, this.height);
+       
+     if(this.delay === 10){ 
+       if(this.activeFrame == this.frames)
+           this.activeFrame = 0;
+
+       this.activeFrame++;
+       this.delay = 0;
+     }
+     this.delay++;
+  }
+}
