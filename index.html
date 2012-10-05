@@ -29,10 +29,40 @@
 						this.h = h;
 					},
 					hitTest: function(x, y){
-						if(x >= this.x && x <= (this.x + this.w)){
-							return true;
+						var b = {};
+							b.left = this.x;
+							b.top = this.y;
+							b.right = b.left + this.w;
+							b.bottom = b.top + this.h;
+						
+						if(x >= b.left){
+							if(x <= b.right){
+								if(y >= b.top){
+									if(y <= b.bottom){
+										return true;
+									}
+								}
+							}
 						}
+						
 						return false;
+					},
+					hitTestObject: function(x, y, w, h){
+						var b = {}, c = {};
+							b.left = this.x;
+							b.top = this.y;
+							b.right = b.left + this.w;
+							b.bottom = b.top + this.h;
+						
+							c.left = x;
+							c.top = y;
+							c.right = c.lfet + w;
+							c.bottom = c.top + h;
+		
+						return (!(c.right < b.left ||
+							c.left > b.right ||
+							c.bottom < b.top ||
+							c.top > b.bottom));
 					},
 					draw: function(ctx){
 						ctx.fillStyle = '#333333';
@@ -83,7 +113,7 @@
 					
 					var b = new Block(20, 0, 2, 80, ctx);
 
-					if(b.hitTest(me.x, me.y)){
+					if(b.hitTest(me.x, me.y, me.w, me.h)){
 						me.pos(b.x - me.w, me.y);
 					}
 					
