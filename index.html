@@ -1,0 +1,102 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<style>
+	body{margin:0;padding:0;text-align:center;}
+	.canvas{outline:0;margin:0 auto;}
+</style>
+</head>
+<body>
+	<canvas id="myCanvas" class="canvas" width="400" height="300"></canvas>
+	<script>
+		var P = (function(){
+			var pdw = {}, cvs, ctx, 
+				Block = function(x, y, w, h, ctx){
+					this.x = x || 0;
+					this.y = y || 0;
+					this.w = w || 0;
+					this.h = h || 0;
+					this.draw(ctx);
+				};
+				Block.prototype = {
+					pos: function(x, y){
+						this.x = x;
+						this.y = y;
+					},
+					size: function(w, h){
+						this.w = w;
+						this.h = h;
+					},
+					hitTest: function(x, y){
+						if(x >= this.x && x <= (this.x + this.w)){
+							return true;
+						}
+						return false;
+					},
+					draw: function(ctx){
+						ctx.fillStyle = '#333333';
+						ctx.beginPath();
+						ctx.rect(this.x, this.y, this.w, this.h);
+						ctx.closePath();
+						ctx.fill();					
+					}
+				},				
+
+				me = {
+					x: 0,
+					y: 0,
+					w: 5,
+					h: 5,
+					color: '#ff6600',
+					pos: function(x, y){
+						this.x = x;
+						this.y = y;
+					},
+					draw: function(ctx){
+						ctx.fillStyle = me.color;
+						ctx.beginPath();
+						ctx.rect(this.x, this.y, this.w, this.h);
+						ctx.closePath();
+						ctx.fill();	
+					},
+					event: (function(){
+						document.addEventListener('keydown', function(e){
+							var code = e.keyCode;
+							if(code === 39){
+								if(me.x >= cvs.width) return;
+								me.x++;
+							}else if(code === 37){
+								if(me.x <= 0) return;
+								me.x--;
+							}
+						}, false);
+					})()
+				}; 
+			
+				cvs = pdw.cvs = document.getElementById('myCanvas');
+				
+				ctx = pdw.ctx = cvs.getContext('2d');
+				
+				pdw.mainLoop = function(){
+					ctx.clearRect(0, 0, cvs.width, cvs.height);
+					
+					var b = new Block(20, 0, 2, 80, ctx);
+
+					if(b.hitTest(me.x, me.y)){
+						me.pos(b.x - me.w, me.y);
+					}
+					
+					me.draw(ctx);
+					
+					pdw.loop = setTimeout(pdw.mainLoop, 16);
+				};
+			
+			return pdw;
+		})();
+		
+		P.mainLoop();	
+	
+	</script>
+</body>
+</html>
