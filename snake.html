@@ -1,0 +1,136 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<style>
+	body{margin:0;padding:0;text-align:center;}
+	.canvas{outline:0;margin:0 auto;border:1px solid #ccc;}
+</style>
+</head>
+<body>
+	<canvas id="myCanvas" class="canvas" width="400" height="300"></canvas>
+	<script>
+		var Snake = (function(){
+			var pdw = {}, cvs, ctx, currKey, items = [],
+				snake = {
+					bodyW: 5,
+					bodyH: 5,
+					body: [ {x: 6, y: 0},
+							{x: 5, y: 0},
+							{x: 4, y: 0},
+							{x: 3, y: 0},
+							{x: 2, y: 0},
+							{x: 1, y: 0},
+							{x: 0, y: 0} ],
+					draw: function(ctx){
+						for (var i = 0, len = snake.body.length; len > i; i++) {
+							var s = snake.body[i];
+							ctx.fillStyle = '#ff9900';
+							ctx.fillRect(s.x * this.bodyW, s.y * this.bodyH, this.bodyW, this.bodyH);
+						}
+					},
+					setPos: function(x, y){
+						var len = this.body.length;
+						for (var i = len - 1; i >= 0; i--) {
+							this.body[i].x = (x - len + i) ;
+							this.body[i].y = y ;
+						}
+					}
+				},
+				 
+				Item = function(x, y, w, h){
+					this.x = x;
+					this.y = y;
+					this.w = w || 5;
+					this.h = h || 5;
+				};
+				Item.prototype = {
+					draw: function(ctx){
+						ctx.fillStyle = '#333333';
+						ctx.fillRect(this.x, this.y, this.w, this.h);
+					},
+					hitTest: function(x, y){
+						var b = {};
+							b.left = this.x;
+							b.top = this.y;
+							b.right = b.left + this.w;
+							b.bottom = b.top + this.h;
+						
+						if(x >= b.left){
+							if(x <= b.right){
+								if(y >= b.top){
+									if(y <= b.bottom){
+										return true;
+									}
+								}
+							}
+						}
+						
+						return false;
+					}
+				};
+				
+				cvs = pdw.cvs = document.getElementById('myCanvas');
+				ctx = pdw.ctx = cvs.getContext('2d');
+				
+				var init = (function(){
+					snake.setPos(cvs.width / 2 / snake.bodyW + (snake.body.length / 2), cvs.height / 2 / snake.bodyW);
+					
+					for(var i = 0, len = 10; len > i; i++){
+						items.push(new Item(~~(Math.random() * cvs.width), ~~(Math.random() * cvs.height)));
+					}
+					
+					
+				})();
+
+				var addEvent = (function(){
+					document.addEventListener('keydown', function(e){
+						var code = e.keyCode;
+						if(code === 39){ currKey = 'right';
+						}else if(code === 37){ currKey = 'left';
+						}else if(code === 38){ currKey = 'up';
+						}else if(code === 40){ currKey = 'down';
+						}
+					}, false);
+				})();				
+				
+				pdw.mainLoop = function(){
+					var sx = snake.body[0].x, 
+						sy = snake.body[0].y;
+					
+					ctx.clearRect(0, 0, cvs.width, cvs.height);
+					
+					if (currKey === 'right'){sx++;
+					}else if(currKey === 'left'){sx--;
+					}else if(currKey === 'up'){sy--;
+					}else if(currKey === 'down'){sy++;}
+					
+					if(currKey){
+						var last = snake.body.pop();
+						last.x = sx;
+						last.y = sy;
+						
+						snake.body.unshift(last);
+					}
+
+					for(var i = 0, len = 10; len > i; i++){
+						items[i].draw(ctx);
+					}
+
+					snake.draw(ctx);
+
+					if(currKey && (sx < 0 || sx > cvs.width / snake.size || sy < 0 || sy > cvs.height / snake.size)){
+						if(pdw.loop) clearTimeout(pdw.loop);
+						return;
+					}; 
+
+					pdw.loop = setTimeout(pdw.mainLoop, 16);
+				};
+			
+			return pdw;
+		})();
+
+		Snake.mainLoop();	
+	</script>
+</body>
+</html>
