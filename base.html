@@ -1,0 +1,29 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<style>
+	body{margin:0;padding:0;text-align:center;}
+	.canvas{outline:0;margin:0 auto;}
+</style>
+</head>
+<body>
+	<canvas id="myCanvas" class="canvas" width="400" height="300"></canvas>
+	<script>
+		(function(){
+			var cvs = document.getElementById('myCanvas'),
+				ctx = cvs.getContext('2d'),
+				loop = 0,
+			    
+				exec = function(){
+					ctx.clearRect(0, 0, cvs.width, cvs.height);
+					
+					
+					
+					loop = setTimeout(exec, 16);
+				};
+				exec();
+		})();
+	</script>
+</body>
+</html>
