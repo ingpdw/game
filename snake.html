@@ -9,9 +9,15 @@
 </head>
 <body>
 	<canvas id="myCanvas" class="canvas" width="400" height="300"></canvas>
+	<div id="menu">
+			<span id="score">0</span>
+	</div>
 	<script>
 		var Snake = (function(){
 			var pdw = {}, cvs, ctx, currKey, items = [],
+				itemLen = 10,
+				score = 0,
+				scoreEl = document.getElementById('score'),
 				snake = {
 					bodyW: 5,
 					bodyH: 5,
@@ -74,9 +80,10 @@
 				ctx = pdw.ctx = cvs.getContext('2d');
 				
 				var init = (function(){
+
 					snake.setPos(cvs.width / 2 / snake.bodyW + (snake.body.length / 2), cvs.height / 2 / snake.bodyW);
 					
-					for(var i = 0, len = 10; len > i; i++){
+					for(var i = 0; itemLen > i; i++){
 						items.push(new Item(~~(Math.random() * cvs.width), ~~(Math.random() * cvs.height)));
 					}
 					
@@ -112,13 +119,23 @@
 						
 						snake.body.unshift(last);
 					}
-
-					for(var i = 0, len = 10; len > i; i++){
-						items[i].draw(ctx);
-					}
-
+					
 					snake.draw(ctx);
-
+					
+					for(var i = 0; items[i]; i++){
+						items[i].draw(ctx);
+						
+						if(items[i].hitTest(sx * snake.bodyW, sy * snake.bodyH)){
+							scoreEl.innerHTML = ++score;
+							items.splice(i, 1);
+							break;	
+						}
+					};
+					
+					if(!items.length) {
+						console.log('complete');
+					}
+					
 					if(currKey && (sx < 0 || sx > cvs.width / snake.size || sy < 0 || sy > cvs.height / snake.size)){
 						if(pdw.loop) clearTimeout(pdw.loop);
 						return;
