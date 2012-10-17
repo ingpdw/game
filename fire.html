@@ -1,0 +1,218 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<style>
+	body{margin:0;padding:0;text-align:center;}
+	.canvas{outline:0;margin:0 auto;border: 1px solid #eee;}
+</style>
+</head>
+<body>
+	<canvas id="myCanvas" class="canvas" width="400" height="200"></canvas>
+
+	<script>
+		var E = function(x, y){
+			this.x = x;
+			this.y = y;
+			this.w = 5;
+			this.h = 5;
+			this.hp = 10;
+			this.color = '#333333';			
+		};
+		E.prototype = {
+			setPos: function(x, y){
+				this.x = x;
+				this.y = y;
+			},
+			getPos: function(){
+				return {x: this.x, y: this.y};
+			},
+			getSize: function(){
+				return {w: this.w, h: this.h};
+			},
+			draw: function(ctx){
+				ctx.fillStyle = this.color;
+				ctx.fillRect(this.x, this.y, this.w, this.h);
+			},
+			decreaseHp: function(){
+				this.hp = this.hp - 10;
+				return this.hp;
+			}
+		};
+		
+		var C = function(x, y, w, h){
+			this.x = x;
+			this.y = y;
+			this.w = w;
+			this.h = h;		
+			this.color = '#ff7700';	
+		};
+		C.prototype = {
+			setPos: function(x, y){
+				this.x = x;
+				this.y = y;
+			},
+			setPosX: function(x){
+				this.x = x;
+			},
+			getPos: function(){
+				return {x: this.x, y: this.y};
+			},
+			draw: function(ctx){
+				ctx.fillStyle = this.color;
+				ctx.fillRect(this.x, this.y, this.w, this.h);
+			}
+		};
+		
+		var T = function(x, y){
+			this.x = x;
+			this.y = y;
+			this.w = 5;
+			this.h = 5;
+			this.cx = this.w / 2;
+			this.cy = this.h / 2;
+			this.color = '#ff9900';
+		};
+		T.prototype = {
+			setPos: function(x, y){
+				this.x = x;
+				this.y = y;
+			},
+			getPos: function(){
+				return {x: this.x, y: this.y};
+			},
+			draw: function(ctx){
+				ctx.fillStyle = this.color;
+				ctx.fillRect(this.x, this.y, this.w, this.h);
+			},
+			hitTest: function(x, y, w, h){
+				var bx = w / 2,
+					by = h / 2;
+					
+					if( Math.abs((this.cx + this.x) - (bx + x)) < this.cx + bx){
+						if (Math.abs((this.cy + this.y) - (by + y)) < this.cy + by) {
+							return true;
+						}
+					}
+					return false;
+			}
+		};
+		
+		var Elist = function(){
+			this.list = [];
+		};
+		Elist.prototype = {
+			get: function(){
+				return this.list;
+			},
+			push: function(o){
+				return this.list.push(o);
+			},
+			splice: function(idx){
+				return this.list.splice(idx, 1);
+				
+			},
+			indexOf: function(o){
+				return this.list.indexOf(o);
+			}
+		};
+		
+		(function(){
+			var cvs = document.getElementById('myCanvas'),
+				ctx = cvs.getContext('2d'),
+				loop = 0,
+				currKey = '',
+				fireKey = false,
+				blockLen = 8,
+				es = new Elist,
+				ts = new Elist,
+				cw = 5,
+				ch = 5,
+				c = new C(cvs.width / 2 + (cw / 2), cvs.height - ch, cw, ch);
+				
+				es.push(new E(100, 100));
+				es.push(new E(200, 100));
+				es.push(new E(0, 50));
+				es.push(new E(30, 10));
+				es.push(new E(50, 20));
+				es.push(new E(50, 30));
+
+				(function(){
+					document.addEventListener('keydown', function(e){
+						var code = e.keyCode;
+						if(code === 39){ 
+							currKey = 'right';
+						}else if(code === 37){ 
+							currKey = 'left';
+						};
+						
+						if (code === 32) {
+							fireKey = true;
+						};
+					}, false);
+				})();
+
+				exec = function(){
+					ctx.clearRect(0, 0, cvs.width, cvs.height);
+					
+					var pos = c.getPos(), x = pos.x;
+					
+					if(currKey == 'right'){
+						x++;
+						if(x > cvs.width - c.w) x = cvs.width - c.w;
+						c.setPosX(x);
+					}else if(currKey == 'left'){
+						x--;
+						if(x < 0) x = 0;
+						c.setPosX(x);	
+					};
+					
+					c.draw(ctx);
+					
+					if(fireKey){
+						var pos = c.getPos();
+						ts.push(new T(pos.x, pos.y));
+						fireKey = false;
+					};
+					
+					
+					for(var i = 0; es.get()[i]; i++){
+						es.get()[i].draw(ctx);
+					};
+					
+					for(var i = 0; ts.get()[i]; i++){
+						var pos = ts.get()[i].getPos(), y = --pos.y;
+						
+						ts.get()[i].setPos(pos.x, y);
+						ts.get()[i].draw(ctx);	
+	
+						if(y < 0){
+							ts.get().splice(i, 1);
+						}
+					};
+					
+					for(var i = 0; ts.get()[i]; i++){
+						for (var j = 0; es.get()[j]; j++) {
+							var pos = es.get()[j].getPos();
+							var size = es.get()[j].getSize();
+							if(ts.get()[i].hitTest( pos.x, pos.y, size.w, size.h )){
+
+								var hp = es.get()[j].decreaseHp();
+								
+								if (hp <= 0) {
+									ts.get().splice(i, 1);
+									es.get().splice(j, 1);
+									
+									break;
+								}
+							}
+						}
+					};
+
+					loop = setTimeout(exec, 16);
+				};
+				exec();
+		})();
+	</script>
+</body>
+</html>
