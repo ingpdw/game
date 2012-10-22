@@ -1,0 +1,113 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<style>
+	body{margin:0;padding:0;text-align:center;}
+	.canvas{position:absolute;top:0;left:0;outline:0;margin:0 auto;}
+</style>
+</head>
+<body>
+	<canvas id="bgCanvas" class="canvas" width="400" height="300"></canvas>
+	<canvas id="myCanvas" class="canvas" width="400" height="300"></canvas>
+	<script>
+		var cvs = document.getElementById('bgCanvas'),
+			ctx = cvs.getContext('2d'),
+			myCanvas = document.getElementById('myCanvas'),
+			myCtx = myCanvas.getContext('2d'),
+			currKey = '',
+			arr = [
+					[0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+					[0, 0, 0, 0, 0, 0, 0, 1, 1, 1],
+					[1, 1, 1, 1, 1, 1, 0, 1, 1, 1],
+					[1, 1, 0, 0, 0, 0, 0, 1, 1, 1],
+					[1, 1, 1, 1, 0, 1, 1, 1, 1, 1], 
+					[1, 1, 1, 0, 0, 1, 1, 1, 1, 1], 
+					[1, 1, 1, 0, 1, 1, 1, 1, 1, 1],
+					[1, 1, 1, 0, 1, 1, 1, 1, 1, 1], 
+					[1, 1, 0, 0, 0, 0, 0, 0, 1, 1], 
+					[1, 1, 1, 1, 1, 1 ,1, 0, 1, 1], 
+					[1, 1, 1, 1 ,1, 0, 0, 0, 0, 1], 
+					[1, 1, 1, 1, 1, 1, 1, 1 ,0, 0],
+					[1, 1, 1, 1, 1, 1, 1, 1, 1, 1]		
+			], rows = 10, cols = 13, w = 10, h = 10,
+			
+			me = {
+			x: 0,
+			y: 0,
+			w: w,
+			h: h,
+			color: '#ff0000',
+			draw: function(ctx){
+				ctx.fillStyle = this.color;
+				ctx.fillRect(this.x, this.y, this.w, this.h);
+			}
+		};
+		
+		(function(){
+			for(var i = 0, len = arr.length; len > i; i++){
+				for (var j = 0, len = arr.length; len > j; j++) {
+					if (arr[i][j])
+						ctx.fillRect(j * w, i * h, w, h);
+				}
+			}
+		})();
+
+		(function(){
+			document.addEventListener('keydown', function(e){
+				var code = e.keyCode;
+				if(code === 39){ currKey = 'right';
+				}else if(code === 37){ currKey = 'left';
+				}else if(code === 38){ currKey = 'up';
+				}else if(code === 40){ currKey = 'down';
+				}
+			}, false);
+		})();		
+		
+		var loop = 0, 
+			currPoint = {x: 0, y: 0},
+			prevPoint = {x: 0, y: 0},
+			exec = function(){
+			
+			myCtx.clearRect(0, 0, myCanvas.width, myCanvas.height);
+			
+			prevPoint.x = currPoint.x;
+			prevPoint.y = currPoint.y;
+			
+			switch(currKey){
+				case 'right':
+					currPoint.x++;
+					if(currPoint.x > rows - 1) currPoint.x = rows - 1;
+					break;
+				case 'left':
+					currPoint.x--;
+					if(currPoint.x < 0) currPoint.x = 0;
+					break;
+				case 'up':
+					currPoint.y--;
+					if(currPoint.y < 0) currPoint.y = 0;
+					break;
+				case 'down':
+					currPoint.y++;
+					if(currPoint.y > cols - 1) currPoint.y = cols - 1;
+					break;
+			}
+
+			
+			if(arr[currPoint.y][currPoint.x]){
+				currPoint.x = prevPoint.x;
+				currPoint.y = prevPoint.y;
+			}
+			
+			me.x = currPoint.x * w;
+			me.y = currPoint.y * h;
+			me.draw(myCtx);
+			
+			currKey = '';
+
+			loop = setTimeout(exec, 16);
+		};exec();
+
+	</script>
+</body>
+</html>
